@@ -6,8 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+const dataGastos = path.resolve(__dirname, '../assets/gastos.json')
 const dataRMates = path.resolve(__dirname, '../assets/roommates.json')
+
 
 export const leerRouter = (req,res)=>{
   try {
@@ -26,8 +27,8 @@ export const nuevoRouter = async (req,res)=>{
     const roommate = {
             id: uuidv4().slice(30),
             nombre: `${randomRoommate.name.first} ${randomRoommate.name.last}`,
-            debe: "",
-            recibe: "",
+            debe: calculoDebe(),
+            recibe: totalRecibe(),
     };
     const { roommates } = JSON.parse(fs.readFileSync(dataRMates, "utf-8"));
     roommates.push(roommate);
@@ -39,3 +40,29 @@ export const nuevoRouter = async (req,res)=>{
     console.log('No se ha ingresado nuevo compañero(a)', error);
   }
 };
+
+const totalRecibe = () => {
+
+    const gastosJSON = JSON.parse(fs.readFileSync(dataGastos, "utf-8"));
+
+    let totalAmount = 0;
+
+    for (const gasto of gastosJSON.gastos) {
+      totalAmount += gasto.monto;
+    }
+
+    console.log(totalAmount);
+    return totalAmount;
+  }
+
+  const calculoDebe = (totalAmount) => {
+
+    const gastosJSON = JSON.parse(fs.readFileSync(dataGastos, "utf-8"));
+
+    const cantRoommates = gastosJSON.length();
+
+    console.log(cantRoommates);
+
+    const result= totalAmount / cantRoommates;
+    return result;
+    }
